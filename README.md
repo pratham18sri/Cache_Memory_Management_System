@@ -1,88 +1,121 @@
-# Hybrid Cache System
+⚡ HYBRID CACHE SYSTEM (HCS)
 
-A production-ready Hybrid Cache System backend using Node.js, Express, and MongoDB. It combines fast in-memory caching with persistent storage, ensuring data survives server restarts.
+Blazing fast ⚡ + Persistent 💾 + Scalable 🚀
+A production-grade hybrid caching backend engineered for speed, reliability, and fault tolerance.
 
-## Features
+🧠 Architecture Overview
+           ┌──────────────┐
+           │   Client     │
+           └──────┬───────┘
+                  │
+          ┌───────▼────────┐
+          │   Express API   │
+          └───────┬────────┘
+                  │
+        ┌─────────▼─────────┐
+        │ Hybrid Cache Core │
+        └───────┬───────────┘
+                │
+     ┌──────────▼──────────┐
+     │   In-Memory Cache   │  (node-cache ⚡)
+     └──────────┬──────────┘
+                │
+     ┌──────────▼──────────┐
+     │     MongoDB         │  (Persistence 💾)
+     └─────────────────────┘
+🚀 Core Features
+⚡ Hybrid Caching Engine
+Ultra-fast in-memory access + persistent MongoDB backup
+💾 Zero Data Loss (Z0Persistence)
+Survives crashes, restarts, and deployments
+🔄 Auto Sync Layer
+Writes propagate instantly → RAM + DB
+⏳ Smart TTL Eviction
+Memory → LRU + TTL
+DB → Mongo TTL Index
+🧯 Graceful Shutdown Protocol
+Ensures no cache corruption
+📊 Observability
+Real-time stats: hits, misses, memory usage
+🛠️ Tech Stack
+Backend   → Node.js + Express
+Database  → MongoDB (Mongoose ODM)
+Caching   → node-cache (LRU + TTL)
+Env Mgmt  → dotenv
+⚙️ Setup & Installation
+1️⃣ Clone & Install
+git clone <repo-url>
+cd hybrid-cache-system
+npm install
+2️⃣ Environment Config
 
-- **Hybrid Caching**: Fast in-memory access (LRU) + MongoDB persistence.
-- **Persistence**: Cache entries survive server restarts.
-- **Auto-Sync**: Writes are synchronized to both memory and DB.
-- **Automatic Eviction**: TTL-based expiry (Memory & DB).
-- **Graceful Shutdown**: Ensures data integrity on exit.
-- **Statistics**: Monitor cache hits, misses, and memory usage.
+Create .env:
 
-## Tech Stack
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+CACHE_TTL=300
+CACHE_MAX_ITEMS=10000
+3️⃣ Run Server
+# Dev mode
+npm run dev
 
-- Node.js
-- Express.js
-- MongoDB + Mongoose
-- node-cache
-- dotenv
-
-## Installation
-
-1.  **Clone the repository** (or extract files).
-2.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
-3.  **Configure Environment**:
-    Create a `.env` file in the root directory:
-    ```env
-    PORT=5000
-    MONGO_URI=your_mongodb_connection_string
-    CACHE_TTL=300
-    CACHE_MAX_ITEMS=10000
-    ```
-4.  **Start the Server**:
-    - Development: `npm run dev`
-    - Production: `npm start`
-
-## API Endpoints
-
-### Store Cache Entry
-**POST** `/cache`
-```json
+# Production
+npm start
+🔌 API Endpoints
+➕ Store Cache
+POST /cache
 {
   "key": "user:123",
   "value": { "name": "John Doe", "role": "admin" },
   "ttl": 3600
 }
-```
+🔍 Retrieve Cache
+GET /cache/:key
 
-### Retrieve Cache Entry
-**GET** `/cache/:key`
-- Returns cached data.
-- Source field indicates `memory` or `database`.
+⚡ Returns:
 
-### Delete Cache Entry
-**DELETE** `/cache/:key`
+memory (fast path)
+database (fallback path)
+❌ Delete Entry
+DELETE /cache/:key
+🧹 Clear Cache
+DELETE /cache
+📊 Cache Stats
+GET /cache/stats
 
-### Clear All Cache
-**DELETE** `/cache`
+Returns:
 
-### Get Statistics
-**GET** `/cache/stats`
-- Returns memory usage, key counts, hits/misses.
-
-## Folder Structure
-
-- `config/`: Database configuration
-- `controllers/`: API request handlers
-- `models/`: Mongoose schemas
-- `routes/`: API route definitions
-- `services/`: Core caching logic (Hybrid Cache Service)
-- `middleware/`: Error handling and logging
-- `server.js`: Application entry point
-
-## Persistence Strategy
-
-- **Writes**: Data is written to `node-cache` (RAM) and `MongoDB` simultaneously.
-- **Reads**: 
-    1. Check RAM. If found -> Return (Fast).
-    2. If not in RAM -> Check MongoDB.
-    3. If in MongoDB -> Load to RAM -> Return.
-- **Eviction**:
-    - RAM: Handled by `node-cache` TTL/LRU.
-    - DB: Handled by MongoDB TTL index (`expiresAt`).
-- **Restart**: On startup, valid entries are loaded from MongoDB into RAM (up to `CACHE_MAX_ITEMS`).
+Hit/Miss ratio
+Memory usage
+Total keys
+🗂️ Project Structure
+├── config/        # DB configs
+├── controllers/   # Route handlers
+├── models/        # Mongoose schemas
+├── routes/        # API routes
+├── services/      # Core cache engine 🔥
+├── middleware/    # Error/logging
+├── server.js      # Entry point
+⚙️ Cache Strategy (Deep Dive)
+📝 Write Path
+Client → API → Cache Service
+                ├── RAM (node-cache)
+                └── MongoDB
+📖 Read Path
+1. Check RAM ⚡
+2. Miss → Check MongoDB 💾
+3. Found → Hydrate RAM → Return
+🧹 Eviction Policy
+Memory → TTL + LRU
+Database → TTL Index (expiresAt)
+🔁 Restart Recovery
+On Boot:
+→ Fetch valid DB entries
+→ Load into RAM (bounded by CACHE_MAX_ITEMS)
+🧑‍💻 Team
+Team Name: PRx Core Engineers ⚡
+👑 Pratham — Team Lead / System Architect
+⚙️ Prakher — Backend Engineer
+🔧 Prashant — API & Integration
+🧠 Praveen — Database & Optimization
+🚀 Prasann — Performance & Testing
