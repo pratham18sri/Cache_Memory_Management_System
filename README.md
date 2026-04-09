@@ -219,7 +219,7 @@ Load into memory (bounded by CACHE_MAX_ITEMS)
 
 Team Name: PRx Core Engineers ⚡
 
-👑 Prakhar — Team Lead / System Architect
+👑 Prakhar — System Architect
 
 ⚙️ Pratham — Backend Engineer
 
