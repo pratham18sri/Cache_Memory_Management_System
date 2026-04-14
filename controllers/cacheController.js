@@ -1,5 +1,21 @@
 const cacheService = require('../services/cacheService');
 
+const MAX_KEY_LENGTH = 128;
+const MAX_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+
+const parseTTL = (ttl) => {
+    if (ttl === undefined || ttl === null || ttl === '') {
+        return null;
+    }
+
+    const parsed = Number(ttl);
+    if (!Number.isInteger(parsed) || parsed <= 0 || parsed > MAX_TTL_SECONDS) {
+        return { error: `TTL must be an integer between 1 and ${MAX_TTL_SECONDS} seconds` };
+    }
+
+    return { value: parsed };
+};
+
 // @desc    Store a cache entry
 // @route   POST /cache
 // @access  Public
@@ -7,16 +23,31 @@ exports.setCache = async (req, res, next) => {
     try {
         const { key, value, ttl } = req.body;
 
-        if (!key || value === undefined) {
+        if (typeof key !== 'string' || !key.trim()) {
+            return res.status(400).json({ success: false, error: 'Key is required and must be a non-empty string' });
+        }
+
+        if (key.length > MAX_KEY_LENGTH) {
+            return res.status(400).json({ success: false, error: `Key length must be <= ${MAX_KEY_LENGTH} characters` });
+        }
+
+        if (value === undefined) {
             return res.status(400).json({ success: false, error: 'Key and value are required' });
         }
 
-        await cacheService.set(key, value, ttl);
+        const ttlResult = parseTTL(ttl);
+        if (ttlResult && ttlResult.error) {
+            return res.status(400).json({ success: false, error: ttlResult.error });
+        }
+
+        const effectiveTTL = ttlResult ? ttlResult.value : null;
+
+        await cacheService.set(key.trim(), value, effectiveTTL);
 
         res.status(201).json({
             success: true,
             message: 'Cache entry stored',
-            data: { key, ttl: ttl || cacheService.ttl }
+            data: { key: key.trim(), ttl: effectiveTTL || cacheService.ttl }
         });
     } catch (error) {
         next(error);

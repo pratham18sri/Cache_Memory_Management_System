@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const cacheRoutes = require('./routes/cacheRoutes');
 const errorHandler = require('./middleware/errorMiddleware');
@@ -8,7 +9,7 @@ const cacheService = require('./services/cacheService');
 const app = express();
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '1mb' }));
 
 // Logging Middleware
 app.use((req, res, next) => {
@@ -17,6 +18,21 @@ app.use((req, res, next) => {
 });
 
 // Routes
+app.get('/health', (req, res) => {
+    const dbState = mongoose.connection.readyState;
+    const dbConnected = dbState === 1;
+
+    return res.status(dbConnected ? 200 : 503).json({
+        success: dbConnected,
+        service: 'hybrid-cache-system',
+        uptimeSeconds: Math.floor(process.uptime()),
+        timestamp: new Date().toISOString(),
+        database: {
+            status: dbConnected ? 'connected' : 'disconnected'
+        }
+    });
+});
+
 app.use('/cache', cacheRoutes);
 
 // Error Handling
@@ -25,36 +41,55 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 // Connect to Database and Start Server
-connectDB().then(async () => {
-    // Initialize Cache Service (Recover from DB)
+let cleanupInterval = null;
+let server = null;
+
+const startServer = async () => {
+    await connectDB();
     await cacheService.init();
 
     // Start Cleanup Job (run every 1 hour as a safeguard)
-    setInterval(() => {
+    cleanupInterval = setInterval(() => {
         cacheService.cleanup();
     }, 60 * 60 * 1000);
 
-    const server = app.listen(PORT, () => {
+    server = app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
     });
 
+    let shuttingDown = false;
+
     // Graceful Shutdown
     const shutdown = async () => {
+        if (shuttingDown) {
+            return;
+        }
+        shuttingDown = true;
+
         console.log('\nStarting graceful shutdown...');
 
-        // In a real scenario, you might want to save current memory cache state 
-        // back to DB if it wasn't already synced.
-        // Since our 'sets' are write-through, we are mostly safe.
-        // We could initiate a final cleanup or flush if needed.
+        if (cleanupInterval) {
+            clearInterval(cleanupInterval);
+            cleanupInterval = null;
+        }
 
-        console.log('Closing HTTP server...');
-        server.close(async () => {
+        if (server) {
+            console.log('Closing HTTP server...');
+            await new Promise((resolve) => server.close(resolve));
             console.log('HTTP server closed.');
-            // Close DB connection if needed, though Mongoose usually handles this.
-            process.exit(0);
-        });
+        }
+
+        await mongoose.connection.close();
+        console.log('MongoDB connection closed.');
+
+        process.exit(0);
     };
 
     process.on('SIGTERM', shutdown);
     process.on('SIGINT', shutdown);
+};
+
+startServer().catch((error) => {
+    console.error('Failed to start server:', error.message);
+    process.exit(1);
 });
