@@ -657,33 +657,4 @@ curl http://localhost:5000/cache/stats
 
 ---
 
-## 👨‍💻 Author
 
-<div align="center">
-
-<img src="https://github.com/pratham18sri.png" width="100" style="border-radius:50%" />
-
-**Pratham Srivastav**
-
-B.Tech Computer Science · GLA University, Mathura · Batch 2027
-
-MERN Stack Developer · Java DSA · Node.js Backend
-
-<br/>
-
-[![GitHub](https://img.shields.io/badge/GitHub-pratham18sri-181717?style=for-the-badge&logo=github)](https://github.com/pratham18sri)
-[![Portfolio](https://img.shields.io/badge/Portfolio-prathamsrivastav.tech-0A66C2?style=for-the-badge&logo=google-chrome&logoColor=white)](https://prathamsrivastav.tech)
-
-</div>
-
----
-
-<div align="center">
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1a1a2e,50:16213e,100:0f3460&height=100&section=footer" width="100%" />
-
-**If this helped you, drop a ⭐ on the repo!**
-
-*Built with Node.js, Express, and MongoDB*
-
-</div>
