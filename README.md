@@ -453,6 +453,17 @@ curl http://localhost:5000/health
   "database": "connected"
 }
 ```
+## 📌 Best Practices
+
+- Use meaningful cache keys for better maintainability  
+- Avoid very large TTL values unless necessary  
+- Monitor memory usage regularly using `/cache/stats`  
+- Clear unused cache entries to optimize performance  
+- Handle API errors properly in client applications  
+
+Following these practices ensures better performance and stability.
+
+---
 
 ---
 
