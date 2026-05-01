@@ -657,5 +657,37 @@ curl http://localhost:5000/cache/stats
 | `.env.example` | Template with all supported environment variables |
 
 ---
+---
+
+## 🚀 Recent Improvements (Community Contribution)
+
+- ✨ Added detailed API usage examples using `curl` for better developer clarity  
+- 📊 Improved `/cache/stats` documentation with structured breakdown explanation  
+- 🛠️ Enhanced error handling section with clear JSON response samples  
+- 🔍 Added production reliability notes for better system understanding  
+- 📘 Refactored README formatting for improved readability and navigation  
+
+---
+
+## 💡 Usage Tips
+
+- Always validate `TTL` values before sending requests to avoid `400` errors  
+- Use `/cache/stats` endpoint to monitor memory usage in real-time  
+- Prefer shorter keys for better performance in high-load scenarios  
+- Monitor `hits` and `misses` ratio to optimize caching strategy  
+
+---
+
+## ⚡ Performance Insight
+
+A higher cache hit ratio significantly reduces database load and improves response time.  
+
+Aim for:
+- 📈 High `hits`
+- 📉 Low `misses`
+
+This indicates an efficient caching strategy.
+
+---
 
 
